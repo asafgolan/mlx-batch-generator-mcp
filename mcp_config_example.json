@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mlx-batch-generator": {
+      "command": "/Users/asafgolan/mlx_parallm/.venv/bin/python",
+      "args": ["mcp_server.py"],
+      "cwd": "/Users/asafgolan/mlx_parallm",
+      "env": {
+        "PYTHONPATH": "/Users/asafgolan/mlx_parallm"
+      }
+    }
+  }
+}

@@ -7,11 +7,13 @@ Provides batch and single text generation using MLX models
 import asyncio
 import json
 import logging
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from mcp.server import FastMCP
 from utils import load, generate, batch_generate
+from database import init_database, save_generation_result
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -77,9 +79,24 @@ def batch_generate_text(
             format_prompts=format_prompts
         )
         
-        # Format results
+        # Generate batch ID for this batch
+        batch_id = f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+        
+        # Format results and save to database
         results = []
         for i, (prompt, response) in enumerate(zip(prompts, responses)):
+            # Save to database
+            save_generation_result(
+                model_name=model_name,
+                prompt=prompt,
+                response=response,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                prompt_index=i,
+                batch_id=batch_id,
+                is_batch=True
+            )
+            
             results.append({
                 "prompt_index": i,
                 "prompt": prompt,
@@ -89,6 +106,7 @@ def batch_generate_text(
         return json.dumps({
             "model": model_name,
             "total_prompts": len(prompts),
+            "batch_id": batch_id,
             "results": results
         }, indent=2)
         
@@ -133,6 +151,16 @@ def single_generate_text(
             max_tokens=max_tokens,
             verbose=verbose,
             temp=temperature
+        )
+        
+        # Save to database
+        save_generation_result(
+            model_name=model_name,
+            prompt=prompt,
+            response=response,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            is_batch=False
         )
         
         return json.dumps({
@@ -180,4 +208,6 @@ def get_model_info() -> str:
 
 if __name__ == "__main__":
     logger.info("Starting MLX MCP Server with FastMCP...")
+    # Initialize database
+    init_database()
     app.run()

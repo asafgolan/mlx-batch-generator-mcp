@@ -58,4 +58,86 @@ def save_generation_result(model_name: str, prompt: str, response: str,
     
     conn.commit()
     conn.close()
-    logger.info(f"Saved generation result to database (batch: {is_batch})")
+    logger.info(f"Generation result saved to database")
+
+def get_batch_results(batch_id: str):
+    """Get all results for a specific batch_id"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, timestamp, model_name, prompt, response, max_tokens, temperature, prompt_index, batch_id
+        FROM generation_results 
+        WHERE batch_id = ?
+        ORDER BY prompt_index
+    """, (batch_id,))
+    
+    results = cursor.fetchall()
+    conn.close()
+    
+    return [{
+        "id": row[0],
+        "timestamp": row[1],
+        "model_name": row[2],
+        "prompt": row[3],
+        "response": row[4],
+        "max_tokens": row[5],
+        "temperature": row[6],
+        "prompt_index": row[7],
+        "batch_id": row[8]
+    } for row in results]
+
+def get_recent_results(limit: int = 10):
+    """Get recent generation results"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, timestamp, model_name, prompt, response, max_tokens, temperature, prompt_index, batch_id
+        FROM generation_results 
+        ORDER BY timestamp DESC 
+        LIMIT ?
+    """, (limit,))
+    
+    results = cursor.fetchall()
+    conn.close()
+    
+    return [{
+        "id": row[0],
+        "timestamp": row[1],
+        "model_name": row[2],
+        "prompt": row[3],
+        "response": row[4],
+        "max_tokens": row[5],
+        "temperature": row[6],
+        "prompt_index": row[7],
+        "batch_id": row[8]
+    } for row in results]
+
+def get_results_by_model(model_name: str, limit: int = 10):
+    """Get recent results for a specific model"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, timestamp, model_name, prompt, response, max_tokens, temperature, prompt_index, batch_id
+        FROM generation_results 
+        WHERE model_name = ?
+        ORDER BY timestamp DESC 
+        LIMIT ?
+    """, (model_name, limit))
+    
+    results = cursor.fetchall()
+    conn.close()
+    
+    return [{
+        "id": row[0],
+        "timestamp": row[1],
+        "model_name": row[2],
+        "prompt": row[3],
+        "response": row[4],
+        "max_tokens": row[5],
+        "temperature": row[6],
+        "prompt_index": row[7],
+        "batch_id": row[8]
+    } for row in results]

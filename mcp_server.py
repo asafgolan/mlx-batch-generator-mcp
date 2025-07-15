@@ -22,33 +22,16 @@ logger = logging.getLogger(__name__)
 # Create FastMCP app
 app = FastMCP("mlx-batch-generator")
 
-# Global model cache
-model_cache = {
-    "model": None,
-    "tokenizer": None,
-    "current_model_name": None
-}
-
-def load_model_if_needed(model_name: str):
-    """Load model if not already loaded or if different model requested"""
-    if model_cache["model"] is None or model_cache["current_model_name"] != model_name:
-        logger.info(f"Loading model: {model_name}")
-        try:
-            model_cache["model"], model_cache["tokenizer"] = load(model_name)
-            model_cache["current_model_name"] = model_name
-            logger.info(f"Model loaded successfully: {model_name}")
-        except Exception as e:
-            logger.error(f"Failed to load model {model_name}: {e}")
-            raise
+# No model cache - load fresh each time like demo notebook
 
 @app.tool()
 def batch_generate_text(
     prompts: List[str],
     model_name: str = "microsoft/Phi-3-mini-4k-instruct",
-    max_tokens: int = 100,
+    max_tokens: int = 300,
     temperature: float = 0.7,
     verbose: bool = False,
-    format_prompts: bool = False
+    format_prompts: bool = True
 ) -> str:
     """
     Generate text from multiple prompts in parallel using MLX models.
@@ -65,13 +48,18 @@ def batch_generate_text(
         JSON string containing the batch generation results
     """
     try:
-        # Load model if needed
-        load_model_if_needed(model_name)
+        # Load model fresh each time (like demo notebook)
+        logger.info(f"Loading model: {model_name}")
+        model, tokenizer = load(model_name)
+        logger.info(f"Model loaded successfully: {model_name}")
+        
+        # Debug: Log the max_tokens parameter
+        logger.info(f"batch_generate_text called with max_tokens: {max_tokens}")
         
         # Generate responses
         responses = batch_generate(
-            model_cache["model"],
-            model_cache["tokenizer"],
+            model,
+            tokenizer,
             prompts=prompts,
             max_tokens=max_tokens,
             verbose=verbose,
@@ -116,65 +104,6 @@ def batch_generate_text(
             "error": str(e),
             "model": model_name,
             "total_prompts": len(prompts)
-        }, indent=2)
-
-@app.tool()
-def single_generate_text(
-    prompt: str,
-    model_name: str = "microsoft/Phi-3-mini-4k-instruct",
-    max_tokens: int = 100,
-    temperature: float = 0.7,
-    verbose: bool = False
-) -> str:
-    """
-    Generate text from a single prompt using MLX models.
-    
-    Args:
-        prompt: Prompt to generate from
-        model_name: Model to use for generation
-        max_tokens: Maximum tokens to generate
-        temperature: Temperature for generation
-        verbose: Enable verbose output
-    
-    Returns:
-        JSON string containing the generation result
-    """
-    try:
-        # Load model if needed
-        load_model_if_needed(model_name)
-        
-        # Generate response
-        response = generate(
-            model_cache["model"],
-            model_cache["tokenizer"],
-            prompt=prompt,
-            max_tokens=max_tokens,
-            verbose=verbose,
-            temp=temperature
-        )
-        
-        # Save to database
-        save_generation_result(
-            model_name=model_name,
-            prompt=prompt,
-            response=response,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            is_batch=False
-        )
-        
-        return json.dumps({
-            "model": model_name,
-            "prompt": prompt,
-            "response": response
-        }, indent=2)
-        
-    except Exception as e:
-        logger.error(f"Error in single_generate_text: {e}")
-        return json.dumps({
-            "error": str(e),
-            "model": model_name,
-            "prompt": prompt
         }, indent=2)
 
 @app.tool()

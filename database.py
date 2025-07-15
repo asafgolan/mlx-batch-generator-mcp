@@ -8,11 +8,14 @@ import sqlite3
 import logging
 from datetime import datetime
 from typing import Optional
+from pathlib import Path
+import os
 
 logger = logging.getLogger(__name__)
 
-# Database configuration
-DB_PATH = "mlx_results.db"
+# Database configuration - use absolute path
+SCRIPT_DIR = Path(__file__).parent.absolute()
+DB_PATH = os.path.join(SCRIPT_DIR, "mlx_results.db")
 
 def init_database():
     """Initialize SQLite database with results table"""

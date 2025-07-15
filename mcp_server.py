@@ -122,6 +122,56 @@ def batch_generate_text(
         }, indent=2)
 
 @app.tool()
+def batch_ner_processing(
+    texts: List[str],
+    model_name: str = "mlx-community/Meta-Llama-3-8B-Instruct-4bit",
+    max_tokens: int = 200,
+    temperature: float = 0.3,
+    verbose: bool = False,
+    format_prompts: bool = True
+) -> str:
+    """
+    Named Entity Recognition batch processing - STUB IMPLEMENTATION
+    
+    This function will process texts for NER extraction (entities, locations, persons, etc.)
+    
+    Args:
+        texts: List of text content to process for NER
+        model_name: Model to use for NER processing
+        max_tokens: Maximum tokens to generate
+        temperature: Temperature for generation (lower for more deterministic NER)
+        verbose: Enable verbose output
+        format_prompts: Format prompts for chat models
+    
+    Returns:
+        JSON string containing batch_id and status (results retrieved separately)
+    """
+    try:
+        # TODO: Implement NER-specific prompt formatting
+        # TODO: Implement NER-specific result processing
+        # TODO: Implement NER-specific database storage
+        
+        # For now, return stub response
+        batch_id = f"ner_batch_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+        
+        return json.dumps({
+            "status": "stub_implementation",
+            "processing_type": "ner",
+            "total_texts": len(texts),
+            "batch_id": batch_id,
+            "message": "NER batch processing - stub implementation. Persistence schema to be decided."
+        }, indent=2)
+    
+    except Exception as e:
+        logger.error(f"Error in batch_ner_processing: {e}")
+        return json.dumps({
+            "status": "error",
+            "processing_type": "ner",
+            "error": str(e),
+            "total_texts": len(texts)
+        }, indent=2)
+
+@app.tool()
 def get_model_info() -> str:
     """
     Get information about the currently loaded model.

@@ -1,7 +1,16 @@
 
-# MLX ParaLLM
+# MLX Batch Generator MCP
 
-Batched KV caching for fast parallel inference on Apple Silicon devices, via [MLX](https://github.com/ml-explore/mlx). 
+Batched KV caching for fast parallel inference on Apple Silicon devices, via [MLX](https://github.com/ml-explore/mlx).
+
+## Attribution
+
+This project is based on the original [MLX ParaLLM](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm) repository. We extend our gratitude to the original authors and contributors for their foundational work in batched generation with MLX.
+
+**Original Repository**: [MLX ParaLLM](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm)  
+**License**: This project maintains the same open-source license as the original work.
+
+This fork has been adapted to work as an MCP (Model Context Protocol) server with additional features and improvements. 
 
 This repo heavily borrows from [`mlx_lm`](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm). Will explore how to add batched generation there as a non-breaking PR. 
 

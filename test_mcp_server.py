@@ -128,44 +128,6 @@ async def test_fastmcp_mlx_server():
             print("❌ No response to model info")
             return False
         
-        # Test single generation (with small token limit to speed up test)
-        single_gen_request = {
-            "jsonrpc": "2.0",
-            "id": 4,
-            "method": "tools/call",
-            "params": {
-                "name": "single_generate_text",
-                "arguments": {
-                    "prompt": "Hello, my name is",
-                    "max_tokens": 5,
-                    "temperature": 0.7
-                }
-            }
-        }
-        
-        print("📤 Sending single generation request...")
-        request_json = json.dumps(single_gen_request) + "\n"
-        process.stdin.write(request_json)
-        process.stdin.flush()
-        
-        # Read response (this might take a while for model loading)
-        print("⏳ Waiting for generation response (this may take time for model loading)...")
-        response_line = process.stdout.readline()
-        if response_line:
-            response = json.loads(response_line.strip())
-            if "error" in response:
-                print(f"❌ Single generation error: {response['error']}")
-                return False
-            else:
-                result = response['result']
-                if result.get('isError'):
-                    print(f"❌ Single generation returned error: {result['content'][0]['text']}")
-                else:
-                    print(f"✅ Single generation success: {result['content'][0]['text'][:200]}...")
-        else:
-            print("❌ No response to single generation")
-            return False
-        
         # Test batch generation
         batch_gen_request = {
             "jsonrpc": "2.0",

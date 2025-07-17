@@ -4,3 +4,4 @@ models/__pycache__
 mlx_parallm_mcp.egg-info
 
 mlx_results.db
+.python-version
